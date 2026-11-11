@@ -1,0 +1,1200 @@
+# PROMPT MESTRE — FECHAMENTO DEFINITIVO DA FASE 3
+## KARATE CLUB — ARQUITETURA, SEGURANÇA, BANCO DE DADOS, AUTENTICAÇÃO E VIABILIDADE TÉCNICA
+
+Você atuará como Arquiteto de Software Sênior, Engenheiro Backend especializado em Firebase, especialista em segurança de aplicações SaaS multi-tenant e auditor técnico responsável pela consolidação da arquitetura do projeto Karate Club.
+
+Sua missão é concluir a Fase 3 do projeto: transformar todas as decisões, requisitos e auditorias anteriores em uma especificação técnica única, coerente, segura, implementável e compatível com as limitações financeiras e tecnológicas do projeto.
+
+Esta é uma etapa de planejamento e auditoria. Não é uma autorização para implementar.
+
+---
+
+# 1. CONTEXTO GERAL DO PROJETO
+
+O produto se chama Karate Club.
+
+É um SaaS de gerenciamento de academias e escolas de karatê, com dois ambientes principais:
+
+1. Painel administrativo do Sensei: gerenciamento completo do dojo.
+2. Portal do aluno: acesso individual às informações e ao histórico do próprio aluno.
+
+O objetivo inicial é utilizar o sistema no próprio dojo, validar os fluxos e posteriormente comercializar o produto para outras academias.
+
+A arquitetura deverá ser multi-tenant desde o início: cada dojo terá seus próprios dados, usuários, alunos, configurações e informações financeiras, sem possibilidade de acesso indevido aos dados de outras academias.
+
+O sistema será inicialmente uma aplicação web responsiva, com possibilidade de funcionar como PWA.
+
+Não é necessário desenvolver aplicativo nativo nesta primeira versão.
+
+## 1.1. Restrições financeiras obrigatórias
+
+O orçamento disponível para o desenvolvimento e operação inicial é de R$ 0,00.
+
+Portanto:
+
+- Não recomendar serviços pagos como se fossem gratuitos.
+- Não ativar faturamento no Google Cloud.
+- Não solicitar cartão de crédito.
+- Não depender de recursos que exigem conta de faturamento.
+- Não presumir que um free tier equivale a uma infraestrutura gratuita garantida.
+- Não recomendar uma solução de produção sem explicar suas limitações.
+- Não criar dependência de serviços pagos para o funcionamento básico do MVP.
+
+Se determinado requisito não puder ser atendido com segurança dentro dessas condições, declare isso expressamente.
+
+A prioridade é construir uma arquitetura que possa ser desenvolvida gratuitamente, com o mínimo de dependências externas e sem comprometer a possibilidade de evolução futura.
+
+## 1.2. Tecnologias existentes
+
+O projeto já possui uma estrutura inicial criada no Google AI Studio Build Mode:
+
+- Frontend React.
+- TypeScript.
+- Backend com Node.js.
+- Ambiente de servidor com Express.
+- Firebase Authentication.
+- Cloud Firestore.
+- Firebase Web SDK.
+- Firebase Admin SDK planejado para operações privilegiadas no servidor.
+
+Projeto Firebase:
+
+`gen-lang-client-0540643703`
+
+O frontend já foi conectado manualmente ao Firebase.
+
+O ambiente informa que:
+
+- Firebase App está inicializado.
+- Firebase Authentication está inicializado.
+- Cloud Firestore está inicializado.
+- Firebase Storage ainda não está inicializado.
+- O projeto Firebase utilizado corresponde ao ID informado.
+- O TypeScript e o build inicial não apresentam erros.
+- O servidor Express utiliza a porta 3000.
+- Nenhuma coleção ou documento de produção foi criado.
+- As regras do Firestore ainda não foram modificadas.
+
+Não presuma que a integração do Firebase Admin SDK já funciona.
+
+O ambiente de preview do AI Studio não deve ser considerado automaticamente autorizado a acessar o projeto Firebase.
+
+---
+
+# 2. ESCOPO FUNCIONAL DO KARATE CLUB
+
+A arquitetura precisa contemplar os seguintes módulos.
+
+## 2.1. Dashboard
+
+O painel administrativo deve apresentar:
+
+- Total de alunos ativos.
+- Alunos inadimplentes.
+- Treinos do dia.
+- Frequência geral.
+- Resumo financeiro.
+- Próximos eventos.
+
+Não incluir uma seção de últimas movimentações nesta versão.
+
+## 2.2. Turmas
+
+O Sensei poderá criar turmas personalizadas, sem limite artificial de quantidade definido pelo produto.
+
+Cada turma poderá conter:
+
+- Nome.
+- Dias de treinamento.
+- Horários.
+- Professor responsável, opcional.
+- Faixa etária.
+- Graduações permitidas.
+- Mensalidade padrão.
+
+Um aluno poderá participar de mais de uma turma.
+
+O horário das turmas deverá aparecer automaticamente na agenda do aluno.
+
+Não duplicar os horários recorrentes das turmas como eventos independentes no calendário.
+
+## 2.3. Alunos
+
+O cadastro deverá contemplar:
+
+- Nome completo.
+- Foto opcional.
+- Data de nascimento.
+- Telefone.
+- Nome do responsável, quando menor de idade.
+- Telefone do responsável.
+- Turma ou turmas.
+- Graduação.
+- Data de matrícula.
+- Dia de vencimento.
+- Mensalidade.
+- Peso.
+
+Não exigir CPF, endereço residencial ou envio de documentos no MVP.
+
+O sistema deverá possuir estados de matrícula, como ativo, inativo ou suspenso, desde que sejam definidos seus efeitos sobre autenticação, acesso e histórico.
+
+O aluno terá um perfil com:
+
+- Dados pessoais.
+- Graduação atual.
+- Turmas.
+- Mensalidade.
+- Desconto individual.
+- Valor final.
+- Dia de vencimento.
+- Situação financeira.
+- Frequência.
+- Histórico de pagamentos.
+- Histórico de graduações.
+- Competições.
+- Histórico de peso.
+
+## 2.4. Financeiro
+
+O controle financeiro será manual.
+
+Requisitos:
+
+- Geração mensal de mensalidades.
+- Confirmação manual de pagamento via Pix.
+- Pagamento integral, sem pagamentos parciais no MVP.
+- Mensalidade padrão definida pela turma.
+- Desconto individual por aluno.
+- Valor final calculado e registrado.
+- Histórico de cobranças e pagamentos.
+- Situação visual de vencimento.
+
+A geração de mensalidades deverá utilizar identificadores determinísticos para evitar duplicidade.
+
+Referência de identificador:
+
+`tui_{studentId}_{referenceMonth}`
+
+O histórico de cobranças deverá ser imutável quanto aos valores originalmente gerados. Alterar a mensalidade atual não poderá modificar cobranças de meses anteriores.
+
+Não depender de Scheduler ou Cloud Functions para gerar mensalidades automaticamente.
+
+O Sensei poderá executar a geração mensal manualmente.
+
+## 2.5. Frequência
+
+O fluxo será:
+
+1. Sensei seleciona uma turma.
+2. Seleciona a data do treino.
+3. O sistema apresenta os alunos matriculados na turma.
+4. O Sensei marca presença ou ausência.
+5. Salva a chamada.
+
+A data atual será selecionada por padrão, mas chamadas anteriores poderão ser editadas conforme permissões definidas.
+
+O sistema deverá registrar:
+
+- Data.
+- Turma.
+- Aluno.
+- Situação de presença.
+- Responsável pelo registro.
+- Data de criação e atualização.
+
+O aluno poderá visualizar sua frequência e seu histórico.
+
+## 2.6. Graduações
+
+O Sensei poderá configurar graduações personalizadas.
+
+Cada graduação terá:
+
+- Nome.
+- Cor.
+- Nível ou ordem.
+- Situação ativa ou arquivada.
+
+O histórico deverá registrar:
+
+- Graduação anterior.
+- Nova graduação.
+- Data da mudança.
+- Usuário responsável.
+
+Graduações já utilizadas em históricos não deverão ser excluídas de forma que comprometam os registros anteriores.
+
+## 2.7. Calendário
+
+O calendário deverá contemplar:
+
+- Exames de faixa.
+- Campeonatos.
+- Seminários.
+- Aulas especiais.
+- Treinos extras.
+- Reuniões.
+- Feriados.
+- Eventos internos.
+
+Cada evento poderá conter:
+
+- Título.
+- Categoria.
+- Data de início.
+- Data de término.
+- Horário.
+- Descrição.
+- Turmas participantes.
+
+O evento poderá ser direcionado a todos os alunos, a turmas específicas ou não possuir público de alunos.
+
+Os horários recorrentes das turmas deverão ser exibidos a partir do cadastro das turmas, sem duplicação de eventos.
+
+## 2.8. Competições
+
+O sistema deverá permitir:
+
+- Cadastro de competição.
+- Organizador.
+- Local.
+- Datas.
+- Descrição.
+- Categorias personalizadas por competição.
+- Cadastro de atletas participantes.
+- Registro de resultados.
+
+As modalidades serão exatamente:
+
+- Kata individual.
+- Kumite individual.
+- Kata em equipe.
+- Kumite em equipe.
+
+Um atleta poderá participar de várias modalidades na mesma competição.
+
+Resultados de equipe deverão registrar os integrantes.
+
+O mesmo resultado deverá aparecer na competição e no perfil dos atletas, sem duplicação desnecessária dos dados.
+
+## 2.9. Relatórios
+
+O sistema deverá oferecer:
+
+- Relatório geral de alunos.
+- Relatório financeiro.
+- Relatório esportivo.
+- Relatório individual do aluno.
+
+O relatório individual poderá conter:
+
+- Dados pessoais.
+- Turmas.
+- Histórico de graduações.
+- Frequência.
+- Financeiro.
+- Competições e medalhas.
+- Histórico de peso.
+
+Deverá existir possibilidade de gerar PDF, imprimir ou compartilhar com o responsável.
+
+A autorização para visualizar informações financeiras deverá ser definida explicitamente.
+
+## 2.10. Portal do aluno
+
+O aluno poderá consultar:
+
+- Perfil.
+- Histórico.
+- Frequência.
+- Competições.
+- Calendário.
+- Horários das turmas.
+- Mensalidades.
+- Situação de pagamento.
+
+O aluno não poderá alterar:
+
+- Presenças.
+- Graduações.
+- Mensalidades.
+- Pagamentos.
+- Resultados de competições.
+- Papéis e permissões.
+- Informações controladas pelo servidor.
+
+A edição de telefone e foto pelo aluno deverá ser tratada como decisão separada, com validação e autorização específicas.
+
+---
+
+# 3. MODELO DE AUTENTICAÇÃO
+
+A arquitetura deverá utilizar Firebase Authentication como sistema de identidade.
+
+Existirão dois fluxos distintos.
+
+## 3.1. Sensei / administrador
+
+O administrador utilizará Firebase Authentication nativo:
+
+- E-mail e senha.
+- Possibilidade de login com Google, se habilitada.
+
+O cadastro inicial deverá ser controlado por convite ou processo seguro de bootstrap.
+
+Não criar cadastro público irrestrito de administradores nesta fase.
+
+No MVP haverá somente o papel administrativo de Sensei e o papel de aluno.
+
+Não criar papéis de secretário ou assistente.
+
+## 3.2. Alunos sem e-mail
+
+Esta é uma decisão já definida e não deve ser alterada:
+
+**O aluno fará login utilizando o identificador do dojo + usuário ou matrícula + senha, sem necessidade de possuir e-mail próprio.**
+
+O Firebase Authentication não oferece diretamente login nativo por username e senha sem e-mail.
+
+A arquitetura proposta é:
+
+1. O aluno informa o identificador do dojo.
+2. Informa username ou matrícula.
+3. Informa senha.
+4. O backend identifica o dojo.
+5. Busca o cadastro privado da credencial.
+6. Valida a senha com Argon2id.
+7. Verifica se o aluno está ativo.
+8. Verifica se a conta pertence ao dojo informado.
+9. Emite Firebase Custom Token.
+10. O frontend utiliza `signInWithCustomToken`.
+
+O username/matrícula será único dentro de cada dojo, não globalmente.
+
+O identificador do dojo poderá ser um código ou slug.
+
+O UID deverá ser estável, baseado em identificadores internos imutáveis, nunca no nome ou na matrícula mutável.
+
+## 3.3. Senhas dos alunos
+
+Regras obrigatórias:
+
+- Senhas armazenadas somente como hash seguro.
+- Argon2id como algoritmo preferencial.
+- Não armazenar senhas em texto puro.
+- Não registrar senhas em logs.
+- Não expor hashes ao frontend.
+- Não permitir que o Sensei consulte a senha atual.
+- O Sensei poderá gerar uma senha temporária de substituição.
+- A senha temporária será exibida uma única vez, sempre que possível.
+- O aluno deverá alterar a senha no primeiro acesso.
+- A obrigatoriedade de alteração será validada pelo backend, não apenas pela interface.
+- Não haverá recuperação de senha por e-mail para alunos no MVP.
+- A recuperação será assistida pelo Sensei.
+
+O sistema deverá proteger contra força bruta, enumeração de contas e abuso de tentativas.
+
+## 3.4. Credenciais privadas
+
+As credenciais de alunos deverão ficar em uma área privada, por exemplo:
+
+`/dojos/{dojoId}/auth_credentials/{usernameNormalized}`
+
+O documento poderá conter:
+
+- username normalizado.
+- passwordHash.
+- estado da senha.
+- referências internas necessárias.
+
+As regras do Firestore para esse caminho deverão negar completamente acesso direto pelo cliente.
+
+O backend será o único responsável pela leitura e alteração dessas credenciais.
+
+---
+
+# 4. ARQUITETURA MULTI-TENANT E BANCO DE DADOS
+
+Apresente uma arquitetura definitiva do Firestore.
+
+Avalie e consolide a estrutura com:
+
+- `/system`
+- `/users`
+- `/dojos/{dojoId}`
+- `/dojos/{dojoId}/students`
+- `/dojos/{dojoId}/classes`
+- `/dojos/{dojoId}/tuitions`
+- `/dojos/{dojoId}/attendance`
+- `/dojos/{dojoId}/graduations`
+- `/dojos/{dojoId}/competitions`
+- `/dojos/{dojoId}/calendar_events`
+- `/dojos/{dojoId}/auth_credentials`
+- `/dojos/{dojoId}/settings`
+- `/dojos/{dojoId}/provisioning_jobs`
+
+Essa lista é uma proposta inicial. Você poderá ajustar nomes e estrutura, desde que justifique tecnicamente e mantenha todos os requisitos funcionais.
+
+Para cada coleção e subcoleção, documente:
+
+1. Finalidade.
+2. Estrutura dos documentos.
+3. Campos obrigatórios.
+4. Campos opcionais.
+5. Identificador.
+6. Relações com outros documentos.
+7. Responsável pela criação.
+8. Responsável pela atualização.
+9. Permissões de leitura.
+10. Permissões de escrita.
+11. Índices necessários.
+12. Regras de integridade.
+
+## 4.1. Separação de dados
+
+Não misture informações administrativas privadas com dados que podem ser exibidos aos alunos.
+
+O documento `/dojos/{dojoId}` deverá conter apenas informações institucionais apropriadas para leitura dos membros autorizados.
+
+Dados fiscais, configurações administrativas e informações privadas deverão estar separados.
+
+Não permita que o aluno consulte dados de outro aluno.
+
+Não permita que um aluno de um dojo consulte qualquer informação de outro dojo.
+
+## 4.2. Integridade dos dados
+
+Defina como serão tratados:
+
+- Exclusão lógica.
+- Arquivamento.
+- Referências entre documentos.
+- Histórico imutável.
+- Duplicidade de mensalidades.
+- Alterações de matrícula.
+- Mudança de turma.
+- Inativação de alunos.
+- Exclusão ou arquivamento de graduações.
+- Exclusão ou arquivamento de competições.
+
+Não criar dados duplicados sem necessidade.
+
+Não utilizar o nome ou a matrícula como identificador permanente de documentos.
+
+---
+
+# 5. FIREBASE ADMIN SDK E CREDENCIAIS
+
+O backend precisará utilizar Firebase Admin SDK para:
+
+- Verificar tokens.
+- Criar Firebase Custom Tokens.
+- Gerenciar usuários.
+- Configurar Custom Claims.
+- Revogar sessões.
+- Executar operações privilegiadas no Firestore.
+
+A arquitetura deverá permitir três estratégias:
+
+1. Credencial privada JSON de conta de serviço.
+2. ADC com `serviceAccountId` e assinatura remota IAM.
+3. ADC padrão em ambiente Google compatível.
+
+A ordem de utilização deverá ser justificada.
+
+Não presuma que o preview do AI Studio possui ADC autorizada no projeto.
+
+Não gere nem solicite chaves privadas nesta fase.
+
+Não exponha credenciais no frontend.
+
+Variáveis `VITE_` não podem armazenar segredos de servidor.
+
+A variável `FIREBASE_PROJECT_ID` deverá ser exclusivamente do servidor quando utilizada pelo Admin SDK.
+
+A variável `FIREBASE_SERVICE_ACCOUNT_ID` deverá ser tratada como identificador de conta de serviço, não como chave privada.
+
+Se houver JSON de conta de serviço, documente a validação dos campos oficiais e o mapeamento para o formato esperado pelo SDK.
+
+A inicialização deverá falhar de forma explícita e segura quando as credenciais forem inválidas.
+
+Não permitir fallback silencioso que esconda erros de configuração.
+
+## 5.1. Bootstrap inicial
+
+O endpoint de bootstrap deverá ser protegido por segredo aleatório de pelo menos 32 bytes.
+
+A proposta anterior utiliza:
+
+`SERVER_BOOTSTRAP_SECRET`
+
+Requisitos:
+
+- Segredo somente no servidor.
+- Exatamente 64 caracteres hexadecimais, caso seja adotada essa representação.
+- Comparação em tempo constante.
+- Validação do tamanho da entrada.
+- Não registrar o segredo em logs.
+- Bloqueio de execução repetida.
+- Registro persistente de conclusão.
+- Nenhuma possibilidade de acesso pelo frontend.
+
+Avalie o caminho `/system/bootstrap_lock` e explique como evitar duas execuções concorrentes.
+
+Não implemente o bootstrap nesta etapa.
+
+---
+
+# 6. SESSÕES, TOKENS E REVOGAÇÃO
+
+Explique de forma definitiva a diferença entre:
+
+- Firebase ID Token.
+- Refresh Token.
+- Firebase Custom Token.
+- Custom Claims.
+- `auth_time`.
+- `iat`.
+
+Considere que ID Tokens possuem duração limitada e que alterar Custom Claims não modifica instantaneamente tokens já emitidos.
+
+A arquitetura deverá definir:
+
+1. Como bloquear imediatamente operações realizadas pelo backend.
+2. Como revogar refresh tokens.
+3. Como bloquear o acesso direto ao Firestore.
+4. Como tratar tokens antigos.
+5. Como bloquear aluno inativo.
+6. Como bloquear aluno com senha temporária pendente de alteração.
+7. Como lidar com mudança de papel.
+8. Como lidar com remoção de aluno de um dojo.
+
+Avalie o uso de `sessionVersion`:
+
+- Onde a versão atual ficará armazenada.
+- Como a versão será colocada no token.
+- Como a regra do Firestore fará a comparação.
+- Quais coleções exigirão essa verificação.
+- Quais custos adicionais existirão.
+- Como o backend atualizará a versão.
+- Como evitar caminhos inconsistentes entre `/users` e `/dojos`.
+
+Não afirme que `revokeRefreshTokens()` invalida imediatamente todos os ID Tokens nas Security Rules.
+
+Diferencie bloqueio de novas operações de remoção de dados já armazenados no cache local do dispositivo.
+
+Se houver limitações que impeçam revogação imediata de todas as operações, documente-as.
+
+---
+
+# 7. PROVISIONAMENTO DE ALUNOS E IDEMPOTÊNCIA
+
+A criação de um aluno envolve Firebase Authentication e Firestore.
+
+Não existe uma transação distribuída que garanta atomicidade entre os dois serviços.
+
+A arquitetura deverá usar uma máquina de estados persistente.
+
+Avalie o uso de:
+
+`/dojos/{dojoId}/provisioning_jobs/{jobId}`
+
+Defina estados como:
+
+- pending.
+- processing.
+- auth_created.
+- profile_created.
+- completed.
+- in_doubt.
+- failed.
+- reconciliation_required.
+
+A sequência deverá ser documentada detalhadamente.
+
+## 7.1. Idempotência
+
+Utilizar `Idempotency-Key` para impedir cadastros duplicados por reenvio de requisição.
+
+Definir:
+
+- Formato da chave.
+- Escopo por dojo.
+- Associação ao usuário que executou a ação.
+- Fingerprint do payload.
+- Comportamento quando a mesma chave é usada com payload diferente.
+- Expiração lógica.
+- Proteção contra replay.
+- Resposta quando a operação já foi concluída.
+
+## 7.2. Respostas perdidas
+
+Considere o cenário:
+
+O Sensei clica em cadastrar, o backend cria a conta e os documentos, mas a conexão cai antes de a resposta chegar ao navegador.
+
+A solução deverá permitir recuperar o estado sem duplicar o aluno.
+
+Avalie a possibilidade de armazenar temporariamente a senha temporária criptografada no job.
+
+Se essa opção for escolhida, detalhe:
+
+- Algoritmo autenticado de criptografia.
+- Armazenamento da chave fora do Firestore.
+- Controle de acesso.
+- Expiração lógica.
+- Limpeza oportunista.
+- Impossibilidade de garantir exclusão física exata em cinco minutos sem mecanismo de execução.
+- Como impedir que a senha seja retornada a um usuário não autorizado.
+- Como proceder se a senha não puder mais ser recuperada.
+
+Não guardar senha em texto puro.
+
+Não afirmar que a limpeza ocorrerá automaticamente sem um processo que efetivamente a execute.
+
+## 7.3. Falhas e reconciliação
+
+Não executar `deleteUser()` automaticamente após um timeout.
+
+Defina como reconciliar:
+
+- Auth criado e perfil ausente.
+- Perfil criado e Auth ausente.
+- Job interrompido.
+- Resposta perdida.
+- Requisição repetida.
+- Falha durante mudança de senha.
+- Falha durante criação de Custom Claims.
+
+Defina quando um registro deverá ser recuperado, corrigido ou marcado para intervenção administrativa.
+
+---
+
+# 8. RATE LIMITING E PROTEÇÃO CONTRA ABUSO
+
+O sistema deverá operar sem TTL, Cloud Scheduler ou Cloud Functions.
+
+A proposta anterior utiliza documentos separados por IP e por conta.
+
+Revise essa estratégia.
+
+Não afirmar que existe um número máximo de documentos por IP quando IPs diferentes podem gerar documentos indefinidamente.
+
+Documente:
+
+- Limite por IP.
+- Limite por conta.
+- Janela de tentativas.
+- Bloqueio progressivo.
+- Tempo de espera.
+- Resposta genérica para falhas de login.
+- Proteção contra enumeração.
+- Proteção contra falsificação de IP por cabeçalhos.
+- Uso de transações atômicas.
+- Concorrência entre tentativas simultâneas.
+- Tratamento de contenção.
+- Retenção dos documentos.
+- Limpeza oportunista compatível com Spark.
+- Limitações de crescimento do banco.
+
+Não utilizar um contador global único que se torne gargalo.
+
+Não permitir que uma pessoa bloqueie permanentemente a conta de outro aluno com tentativas maliciosas.
+
+Diferenciar:
+
+- Força bruta contra uma conta.
+- Abuso distribuído de várias contas.
+- Ataque volumétrico de rede.
+- HTTP flood.
+- DDoS.
+
+Explique o que a aplicação consegue proteger sozinha e o que depende de infraestrutura externa.
+
+---
+
+# 9. ARGON2ID E LIMITES DE RECURSOS
+
+A recomendação inicial foi:
+
+- m = 32768 KiB.
+- t = 3.
+- p = 1.
+
+Esses valores deverão ser considerados provisórios.
+
+Não afirmar que o hash leva 150 ms sem benchmark real.
+
+A documentação deverá considerar:
+
+- Memória consumida por hash.
+- Tempo de processamento.
+- Concorrência.
+- Limite de fila.
+- Limite de requisições.
+- Proteção contra esgotamento de memória.
+- Resposta quando a fila estiver cheia.
+- Comportamento em containers com 512 MB.
+- Diferença entre desenvolvimento e produção.
+
+A recomendação de parâmetros deverá ser comparada com as orientações atuais da OWASP.
+
+Não reduzir parâmetros de segurança simplesmente para acomodar um host inadequado.
+
+Se o ambiente gratuito não suportar a configuração segura, declarar a incompatibilidade.
+
+---
+
+# 10. SECURITY RULES DO FIRESTORE
+
+Esta seção é obrigatória.
+
+Apresente uma proposta coerente de Security Rules, preferencialmente em pseudocódigo preciso ou regras completas.
+
+Inclua:
+
+- `/users`
+- `/dojos`
+- `/students`
+- `/classes`
+- `/tuitions`
+- `/attendance`
+- `/graduations`
+- `/competitions`
+- `/calendar_events`
+- `/auth_credentials`
+- `/settings`
+- `/provisioning_jobs`
+- `/system`
+
+As regras deverão contemplar:
+
+1. Usuário autenticado.
+2. Associação ao dojo.
+3. Papel de Sensei.
+4. Papel de aluno.
+5. Acesso ao próprio perfil.
+6. Acesso às próprias mensalidades.
+7. Acesso à própria frequência.
+8. Acesso ao próprio histórico de graduações.
+9. Acesso a resultados de competições dos quais participa.
+10. Leitura de calendário e horários autorizados.
+11. Bloqueio de credenciais.
+12. Bloqueio de dados administrativos privados.
+13. Proibição de alteração de papéis.
+14. Proibição de alteração de Custom Claims pelo cliente.
+15. Proibição de alteração de campos financeiros controlados pelo servidor.
+16. Proteção contra acesso cruzado entre dojos.
+17. Proteção de documentos controlados pelo backend.
+
+Não confiar apenas na interface para impedir operações.
+
+Não considerar que esconder um botão representa controle de acesso.
+
+## 10.1. Consultas do frontend
+
+As Security Rules do Firestore não são filtros automáticos.
+
+Demonstre quais consultas o frontend deverá realizar para que o Firestore consiga comprovar que todos os documentos retornados estão autorizados.
+
+Exemplos:
+
+- Consultas de alunos.
+- Consultas de mensalidades.
+- Consultas de frequência.
+- Consultas de competições.
+- Consultas de calendário.
+- Consultas administrativas.
+
+Explique como as regras e os filtros de consulta serão compatíveis.
+
+Não afirmar que uma consulta é segura apenas porque ela inclui `where()` sem demonstrar a regra correspondente.
+
+---
+
+# 11. CUSTOS, LIMITES E VIABILIDADE DE R$ 0
+
+Utilize a documentação oficial atual do Firebase e Google Cloud para verificar os limites.
+
+Não utilize informações antigas sem identificar a data.
+
+Apresente uma tabela com:
+
+- Serviço.
+- Plano gratuito.
+- Limites relevantes.
+- Necessidade de conta de faturamento.
+- Recursos indisponíveis sem faturamento.
+- Riscos de cobrança.
+- Adequação ao MVP.
+
+Avalie especialmente:
+
+## Firebase Authentication
+
+Verificar limites atuais de usuários ativos diariamente para os provedores utilizados, inclusive Custom Authentication.
+
+Não afirmar que Custom Tokens são ilimitados.
+
+## Cloud Firestore
+
+Verificar:
+
+- Leituras.
+- Gravações.
+- Exclusões.
+- Armazenamento.
+- Tráfego de saída.
+- Limites de operações.
+- TTL.
+- Backups.
+- Point-in-time recovery.
+- Recursos que exigem faturamento.
+
+## Google Cloud Run
+
+Verificar a exigência de conta de faturamento.
+
+Não considerar o free tier uma garantia de operação sem cartão ou sem conta de faturamento.
+
+## Hospedagem externa
+
+Avaliar Render Free e outras opções gratuitas apenas com documentação atual.
+
+Não recomendar Fly.io como gratuito sem verificar a situação atual do plano.
+
+Para cada hospedagem, informar:
+
+- Suspensão por inatividade.
+- Cold start.
+- RAM.
+- CPU.
+- Persistência do disco.
+- Limite de horas.
+- Limites de uso.
+- Adequação a um SaaS em produção.
+
+## Resultado financeiro
+
+Separar claramente:
+
+1. Desenvolvimento gratuito.
+2. Testes e demonstração gratuitos.
+3. Homologação.
+4. Produção real.
+5. Escala para várias academias.
+
+Se não existir solução de produção contínua, segura e confiável a R$ 0 sem faturamento, declarar isso.
+
+Não recomendar ativação de faturamento sem autorização expressa do usuário.
+
+---
+
+# 12. INICIALIZAÇÃO DO BACKEND E ESTRATÉGIA DE CREDENCIAIS
+
+A decisão provisória para a Fase 4 é a opção B:
+
+**Construir inicialmente o esqueleto do backend com interfaces mockáveis e injeção de dependências, sem chamar o Firebase Admin SDK real até a homologação das credenciais.**
+
+Descreva exatamente como isso será feito.
+
+A arquitetura deverá separar:
+
+- Rotas HTTP.
+- Controllers.
+- Serviços de aplicação.
+- Repositórios.
+- Adaptadores Firebase.
+- Validação.
+- Autorização.
+- Tratamento de erros.
+- Configuração.
+- Logs.
+- Testes.
+
+Defina interfaces para:
+
+- Authentication.
+- Firestore.
+- Custom Token.
+- Verificação de ID Token.
+- Gerenciamento de usuários.
+- Hash de senha.
+- Rate limiting.
+- Provisionamento.
+- Auditoria.
+
+Os testes iniciais poderão utilizar implementações falsas em memória.
+
+Não utilizar mocks como prova de que a integração real com Firebase está funcionando.
+
+Diferenciar claramente:
+
+- Testes unitários.
+- Testes de integração.
+- Testes de Security Rules.
+- Testes com Firebase Emulator Suite, se viável sem custo.
+- Homologação com projeto Firebase real.
+
+Defina quais partes podem ser implementadas sem credenciais e quais dependem obrigatoriamente da integração real.
+
+---
+
+# 13. API E CONTRATOS DO BACKEND
+
+Apresente a proposta de endpoints para o MVP.
+
+Considere, no mínimo:
+
+## Autenticação
+
+- Login do aluno.
+- Login do administrador, quando houver necessidade de endpoint próprio.
+- Logout.
+- Alteração de senha.
+- Redefinição assistida de senha.
+- Verificação de sessão.
+
+## Bootstrap
+
+- Inicialização do primeiro administrador.
+- Verificação do estado de bootstrap.
+
+## Alunos
+
+- Criar aluno.
+- Consultar aluno.
+- Atualizar aluno.
+- Inativar aluno.
+- Recuperar status de provisionamento.
+- Gerar senha temporária.
+
+## Administração
+
+- Gerenciar turmas.
+- Gerenciar mensalidades.
+- Confirmar pagamentos.
+- Registrar frequência.
+- Gerenciar graduações.
+- Gerenciar competições.
+- Gerenciar eventos.
+
+Para cada endpoint, documente:
+
+- Método HTTP.
+- Caminho.
+- Papel autorizado.
+- Dados de entrada.
+- Validações.
+- Dados de saída.
+- Erros possíveis.
+- Idempotência.
+- Operações privilegiadas.
+- Auditoria.
+
+Não é necessário implementar endpoints nesta etapa.
+
+---
+
+# 14. LOGS, AUDITORIA E PRIVACIDADE
+
+Defina uma política para registrar ações importantes:
+
+- Criação de aluno.
+- Alteração de cadastro.
+- Inativação.
+- Alteração de senha.
+- Reset de senha.
+- Mudança de graduação.
+- Registro de frequência.
+- Confirmação de pagamento.
+- Alteração de dados financeiros.
+- Alteração de configurações administrativas.
+
+Os logs não poderão armazenar:
+
+- Senhas.
+- Hashes de senha.
+- Tokens.
+- Chaves privadas.
+- Segredos de bootstrap.
+- Dados sensíveis desnecessários.
+
+Defina campos de auditoria:
+
+- Usuário responsável.
+- Dojo.
+- Ação.
+- Entidade.
+- Identificador da entidade.
+- Data e hora.
+- Resultado.
+- Contexto mínimo necessário.
+
+Avalie retenção, crescimento do banco e proteção contra alteração pelo cliente.
+
+Considere minimização de dados pessoais e princípios da LGPD.
+
+Não invente obrigações legais específicas sem fonte.
+
+---
+
+# 15. BACKUP, RECUPERAÇÃO E CONTINUIDADE
+
+O sistema não poderá depender de backups pagos como se fossem gratuitos.
+
+Documente:
+
+- Quais recursos de backup são gratuitos.
+- Quais exigem faturamento.
+- Como exportações manuais poderiam ser feitas.
+- Quais limitações existem no Spark.
+- Como recuperar dados após erro administrativo.
+- Como evitar exclusões acidentais.
+- Como proteger registros financeiros e históricos.
+
+Se não houver backup automático gratuito e confiável, declarar a limitação.
+
+Não afirmar que o Firestore possui backup automático gratuito se isso não estiver disponível no plano utilizado.
+
+---
+
+# 16. CRITÉRIOS DE QUALIDADE E ACEITAÇÃO
+
+A arquitetura final deverá atender aos seguintes critérios:
+
+- Multi-tenant desde o início.
+- Isolamento entre dojos.
+- Login de aluno sem e-mail.
+- Login administrativo por Firebase Authentication.
+- Credenciais de alunos privadas.
+- Senhas com hash seguro.
+- Alteração obrigatória da senha temporária.
+- Provisionamento idempotente.
+- Recuperação de falhas sem rollback destrutivo.
+- Proteção contra força bruta.
+- Sessões e revogação documentadas.
+- Security Rules coerentes com as consultas do frontend.
+- Dados administrativos separados dos dados dos alunos.
+- Histórico financeiro preservado.
+- Sem dependência de serviços pagos para o desenvolvimento inicial.
+- Sem chaves privadas no frontend.
+- Backend desacoplado de credenciais reais durante o desenvolvimento inicial.
+- Nenhuma promessa falsa de produção gratuita e 24/7.
+
+---
+
+# 17. FORMATO OBRIGATÓRIO DA ENTREGA FINAL
+
+Organize sua resposta exatamente nesta ordem:
+
+## PARTE A — Resumo executivo
+Explique a arquitetura final em linguagem clara.
+
+## PARTE B — Decisões arquiteturais definitivas
+Liste cada decisão e sua justificativa.
+
+## PARTE C — Modelo de dados Firestore
+Apresente a estrutura completa, campos, relações e responsabilidades.
+
+## PARTE D — Autenticação e segurança
+Apresente os dois fluxos de login, gerenciamento de senhas, tokens, sessões e revogação.
+
+## PARTE E — Provisionamento e idempotência
+Apresente a máquina de estados e os cenários de falha.
+
+## PARTE F — Security Rules
+Apresente regras completas ou pseudocódigo suficientemente preciso e coerente com a estrutura final.
+
+## PARTE G — Rate limiting e Argon2id
+Apresente limites, concorrência, parâmetros provisórios e restrições.
+
+## PARTE H — Backend e API
+Apresente arquitetura de pastas, interfaces, responsabilidades e endpoints.
+
+## PARTE I — Custos e hospedagem
+Apresente limites oficiais e a viabilidade real de R$ 0.
+
+## PARTE J — Logs, LGPD, backup e recuperação
+Apresente a política mínima de segurança e continuidade.
+
+## PARTE K — Matriz final de aprovação
+Utilize uma tabela com:
+
+- Requisito.
+- Decisão.
+- Status: APROVADO, PENDENTE ou BLOQUEADO.
+- Justificativa.
+- Dependência.
+- Pode avançar para implementação?
+
+## PARTE L — Plano da Fase 4
+Divida a implementação em etapas pequenas, sequenciais e testáveis.
+
+A primeira etapa deverá ser a criação do esqueleto do backend, com interfaces mockáveis e sem credenciais reais.
+
+Não misture implementação com planejamento.
+
+## PARTE M — Pendências que exigem decisão do usuário
+Liste somente decisões que realmente dependem do usuário.
+
+Não solicite decisões que já foram definidas neste documento.
+
+## PARTE N — Diagnóstico final
+Declare claramente:
+
+- O que está definitivamente aprovado.
+- O que está aprovado apenas conceitualmente.
+- O que depende de testes.
+- O que depende de credenciais.
+- O que depende de hospedagem.
+- O que não pode ser garantido a R$ 0.
+- Se a Fase 3 pode ser encerrada.
+- Se a Fase 4 pode começar e em qual escopo.
+
+---
+
+# 18. REGRAS DE EXECUÇÃO DESTA SOLICITAÇÃO
+
+ATENÇÃO: ESTA É UMA AUDITORIA E CONSOLIDAÇÃO DE PLANEJAMENTO.
+
+Você NÃO está autorizado a:
+
+- Criar arquivos.
+- Modificar arquivos.
+- Alterar código.
+- Criar coleções.
+- Criar documentos no Firestore.
+- Criar usuários.
+- Modificar Security Rules.
+- Gerar chaves privadas.
+- Solicitar chaves privadas.
+- Configurar IAM.
+- Ativar APIs pagas.
+- Vincular faturamento.
+- Fazer deploy.
+- Publicar o sistema.
+- Executar comandos de terminal.
+- Instalar dependências.
+- Modificar o projeto no AI Studio.
+
+Não declare que algo foi testado se não foi testado.
+
+Não declare que uma regra foi validada se ela existe apenas como proposta.
+
+Não invente resultados de benchmark.
+
+Não invente limites de serviços.
+
+Sempre que utilizar informações sobre preços, limites, Firebase, Google Cloud, OWASP ou hospedagem, consulte documentação oficial atual e informe as fontes e a data da consulta.
+
+Se houver conflito entre auditorias anteriores, explique o conflito e escolha uma decisão tecnicamente fundamentada.
+
+Se faltar informação, declare a lacuna em vez de inventar.
+
+Não simplifique os requisitos para facilitar a aprovação.
+
+**O objetivo é entregar uma especificação técnica definitiva, consistente e suficientemente detalhada para orientar a Fase 4 sem improvisações, retrabalho ou decisões inseguras.**
+
+Ao finalizar, aguarde autorização expressa do usuário antes de qualquer implementação.

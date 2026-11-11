@@ -1,0 +1,183 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // =========================================================================
+    // FUNÇÕES AUXILIARES DE SEGURANÇA E AUTORIZAÇÃO (AUDITORIA CONSOLIDADA FASE 3)
+    // =========================================================================
+
+    function isAuthenticated() {
+      return request.auth != null && request.auth.uid != null;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isPlatformSuperadmin() {
+      return isAuthenticated() &&
+        (request.auth.token.role == 'platform_superadmin' ||
+         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+          getUserData().role == 'platform_superadmin' &&
+          getUserData().isActive == true));
+    }
+
+    function isUserActive() {
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        getUserData().isActive == true;
+    }
+
+    function isDojoActive(dojoId) {
+      return exists(/databases/$(database)/documents/dojos/$(dojoId)) &&
+        get(/databases/$(database)/documents/dojos/$(dojoId)).data.isActive == true;
+    }
+
+    function isDojoAdmin(dojoId) {
+      return isUserActive() &&
+        isDojoActive(dojoId) &&
+        getUserData().dojoId == dojoId &&
+        (getUserData().role == 'admin' || getUserData().role == 'sensei');
+    }
+
+    function getStudentDoc(dojoId, studentId) {
+      return get(/databases/$(database)/documents/dojos/$(dojoId)/students/$(studentId)).data;
+    }
+
+    function isStudentOperational(dojoId) {
+      let user = getUserData();
+      return isUserActive() &&
+        isDojoActive(dojoId) &&
+        user.dojoId == dojoId &&
+        user.role == 'student' &&
+        user.studentId != null &&
+        exists(/databases/$(database)/documents/dojos/$(dojoId)/students/$(user.studentId)) &&
+        getStudentDoc(dojoId, user.studentId).status == 'active' &&
+        request.auth.token.sVer is int &&
+        request.auth.token.sVer > 0 &&
+        request.auth.token.sVer == user.sessionVersion &&
+        (request.auth.token.mustChangePassword == false || user.mustChangePassword == false);
+    }
+
+    function hasValidStudentSession(dojoId, studentId) {
+      return isStudentOperational(dojoId) &&
+        getUserData().studentId == studentId &&
+        (request.auth.token.studentId == studentId || getUserData().studentId == studentId);
+    }
+
+    // =========================================================================
+    // REGRAS POR COLEÇÃO E ESCOPO MULTI-TENANT
+    // =========================================================================
+
+    // 1. Coleção Raiz: users (Perfis de Usuários)
+    match /users/{userId} {
+      allow get: if isAuthenticated() && (
+        request.auth.uid == userId ||
+        isPlatformSuperadmin() ||
+        (isUserActive() && (getUserData().role == 'admin' || getUserData().role == 'sensei') &&
+         getUserData().dojoId == resource.data.dojoId)
+      );
+      allow list: if isPlatformSuperadmin() ||
+        (isUserActive() && (getUserData().role == 'admin' || getUserData().role == 'sensei') &&
+         resource.data.dojoId == getUserData().dojoId);
+      // Alterações diretas no Firestore client são bloqueadas (somente Backend Admin SDK)
+      allow create, update, delete: if isPlatformSuperadmin();
+    }
+
+    // 2. Coleção Raiz: dojos (Academias de Karatê)
+    match /dojos/{dojoId} {
+      allow get: if isPlatformSuperadmin() ||
+        (isDojoActive(dojoId) && (isDojoAdmin(dojoId) || isStudentOperational(dojoId)));
+      allow list: if isPlatformSuperadmin();
+      allow create, delete: if isPlatformSuperadmin();
+      allow update: if isPlatformSuperadmin() || isDojoAdmin(dojoId);
+
+      // 3. Subcoleção: students (Prontuário dos Alunos)
+      match /students/{studentId} {
+        allow get: if isDojoAdmin(dojoId) || hasValidStudentSession(dojoId, studentId);
+        // Listagem restrita exclusivamente aos administradores do dojo
+        allow list: if isDojoAdmin(dojoId);
+        allow create, update, delete: if isDojoAdmin(dojoId);
+      }
+
+      // 4. Subcoleção: auth_credentials (Credenciais e Hashes Argon2id - NUNCA EXPOSTAS AO CLIENT)
+      match /auth_credentials/{usernameNormalized} {
+        allow read, write: if false; // Exclusivo Firebase Admin SDK (backend)
+      }
+
+      // Salvaguarda de segurança: student_credentials também bloqueada contra qualquer acesso
+      match /student_credentials/{credentialId} {
+        allow read, write: if false; // Exclusivo Firebase Admin SDK (backend)
+      }
+
+      // 5. Subcoleção: classes (Turmas e Horários)
+      match /classes/{classId} {
+        allow get, list: if isDojoAdmin(dojoId) || isStudentOperational(dojoId);
+        allow create, update, delete: if isDojoAdmin(dojoId);
+      }
+
+      // 6. Subcoleção: tuitions (Mensalidades e Finanças)
+      match /tuitions/{tuitionId} {
+        allow get: if isDojoAdmin(dojoId) ||
+          (isStudentOperational(dojoId) && resource.data.studentId == request.auth.token.studentId);
+        // Aluno só pode listar mensalidades filtradas estritamente pelo seu próprio studentId
+        allow list: if isDojoAdmin(dojoId) ||
+          (isStudentOperational(dojoId) && resource.data.studentId == request.auth.token.studentId);
+        allow create, update, delete: if isDojoAdmin(dojoId);
+      }
+
+      // 7. Subcoleção: attendance (Registro de Presenças)
+      match /attendance/{attendanceId} {
+        allow get: if isDojoAdmin(dojoId) ||
+          (isStudentOperational(dojoId) && resource.data.studentId == request.auth.token.studentId);
+        // Aluno só pode listar presenças com filtro obrigatório studentId
+        allow list: if isDojoAdmin(dojoId) ||
+          (isStudentOperational(dojoId) && resource.data.studentId == request.auth.token.studentId);
+        allow create, update, delete: if isDojoAdmin(dojoId);
+      }
+
+      // 8. Subcoleção: graduations (Histórico de Faixas e Exames)
+      match /graduations/{graduationId} {
+        allow get: if isDojoAdmin(dojoId) ||
+          (isStudentOperational(dojoId) && resource.data.studentId == request.auth.token.studentId);
+        // Aluno só pode listar graduações do seu próprio prontuário
+        allow list: if isDojoAdmin(dojoId) ||
+          (isStudentOperational(dojoId) && resource.data.studentId == request.auth.token.studentId);
+        allow create, update, delete: if isDojoAdmin(dojoId);
+      }
+
+      // 9. Subcoleção: competitions (Campeonatos e Torneios)
+      match /competitions/{competitionId} {
+        allow get, list: if isDojoAdmin(dojoId) || isStudentOperational(dojoId);
+        allow create, update, delete: if isDojoAdmin(dojoId);
+
+        // 10. Sub-subcoleção: results (Resultados de Competições)
+        match /results/{resultId} {
+          allow get: if isDojoAdmin(dojoId) ||
+            (isStudentOperational(dojoId) && request.auth.token.studentId in resource.data.studentIds);
+          // Aluno só pode listar resultados que contenham seu ID no array studentIds
+          allow list: if isDojoAdmin(dojoId) ||
+            (isStudentOperational(dojoId) && request.auth.token.studentId in resource.data.studentIds);
+          allow create, update, delete: if isDojoAdmin(dojoId);
+        }
+      }
+
+      // 11. Subcoleção: calendar_events (Eventos e Avisos do Dojo)
+      match /calendar_events/{eventId} {
+        allow get: if isDojoAdmin(dojoId) ||
+          (isStudentOperational(dojoId) && resource.data.isPublicForStudents == true);
+        // Aluno só pode listar eventos públicos para o corpo discente
+        allow list: if isDojoAdmin(dojoId) ||
+          (isStudentOperational(dojoId) && resource.data.isPublicForStudents == true);
+        allow create, update, delete: if isDojoAdmin(dojoId);
+      }
+    }
+
+    // =========================================================================
+    // NEGAÇÃO POR PADRÃO (DEFAULT DENY)
+    // =========================================================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

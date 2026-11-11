@@ -1,0 +1,1121 @@
+# KARATE CLUB — ETAPA 4.1
+## IMPLEMENTAÇÃO DA ESTRUTURA FUNDAMENTAL DO BACKEND
+### Prompt técnico de execução — Google AI Studio Build
+
+Você atuará como **Engenheiro de Software Sênior, Arquiteto de Sistemas e Especialista em Backend, Node.js, TypeScript, Firebase e segurança de aplicações SaaS multi-tenant**.
+
+Estamos desenvolvendo o **Karate Club**, uma plataforma SaaS de gerenciamento de academias de karatê (dojos), com painel administrativo para professores e gestores e portal individual para alunos.
+
+A Fase 3 de arquitetura, planejamento de segurança e definição das regras de negócio foi concluída. Agora iniciaremos a Etapa 4, começando exclusivamente pela Etapa 4.1.
+
+Sua missão é implementar a estrutura fundamental do backend, preparando o projeto para receber as integrações reais nas próximas etapas.
+
+**ATENÇÃO: esta etapa NÃO é a implementação completa do sistema. É a construção de uma base técnica organizada, tipada, testável e preparada para evoluir.**
+
+Não antecipe etapas. Não conecte serviços reais. Não crie atalhos que comprometam a arquitetura.
+
+---
+
+# 1. CONTEXTO DO PROJETO
+
+## 1.1. Produto
+
+Nome: Karate Club.
+
+Objetivo: oferecer a academias de karatê uma plataforma para gerenciar alunos, turmas, mensalidades, pagamentos, frequência, graduações, competições, calendário e relatórios.
+
+A plataforma terá dois ambientes principais:
+
+**Painel administrativo:**
+- Gerenciamento do dojo.
+- Cadastro e gerenciamento de alunos.
+- Gerenciamento de turmas.
+- Controle de frequência.
+- Gestão financeira.
+- Controle de graduações.
+- Gerenciamento de competições.
+- Calendário.
+- Relatórios.
+- Configurações administrativas.
+
+**Portal do aluno:**
+- Perfil pessoal.
+- Informações de suas turmas.
+- Horários de treinamento.
+- Histórico de frequência.
+- Histórico de graduações.
+- Competições e resultados.
+- Calendário.
+- Situação das mensalidades.
+
+## 1.2. Arquitetura
+
+A aplicação utiliza:
+
+- Frontend: React e TypeScript.
+- Ferramentas de desenvolvimento: Vite.
+- Backend: Node.js.
+- Servidor HTTP: Express.
+- Banco de dados planejado: Cloud Firestore.
+- Autenticação planejada: Firebase Authentication.
+- Autenticação de alunos: Firebase Custom Tokens emitidos pelo backend.
+- Linguagem principal: TypeScript.
+
+O projeto já possui uma estrutura inicial de frontend e servidor. Antes de modificar qualquer arquivo, inspecione a estrutura real existente.
+
+Não substitua tecnologias, bibliotecas ou configurações sem justificativa técnica e sem apresentar o impacto.
+
+## 1.3. Identificação do projeto Firebase
+
+Projeto Firebase existente:
+
+`gen-lang-client-0540643703`
+
+Região planejada para Firestore:
+
+`southamerica-east1`
+
+A inicialização do SDK cliente já foi realizada anteriormente.
+
+Nesta etapa, porém, **não será necessário executar operações reais no Firebase**.
+
+Não crie coleções, documentos, usuários ou registros.
+
+Não altere as regras de segurança publicadas.
+
+Não gere credenciais.
+
+---
+
+# 2. REGRAS INEGOCIÁVEIS DE EXECUÇÃO
+
+Estas regras têm prioridade sobre qualquer decisão de implementação.
+
+1. Não modificar o escopo da Etapa 4.1.
+2. Não implementar autenticação real.
+3. Não criar usuários no Firebase Authentication.
+4. Não emitir Firebase Custom Tokens reais.
+5. Não executar leituras ou gravações no Firestore.
+6. Não publicar ou modificar Security Rules.
+7. Não criar dados reais ou fictícios no banco.
+8. Não implementar o bootstrap real de administradores.
+9. Não criar endpoints públicos de cadastro.
+10. Não implementar deploy ou publicação.
+11. Não ativar cobrança ou plano pago.
+12. Não adicionar serviços que exijam cartão de crédito.
+13. Não inserir credenciais, chaves privadas ou segredos no código.
+14. Não alterar desnecessariamente o frontend existente.
+15. Não apagar funcionalidades já existentes.
+16. Não substituir arquivos inteiros sem antes compreender sua finalidade.
+17. Não utilizar mocks como se fossem integrações reais.
+18. Não declarar testes aprovados sem executá-los.
+
+**Orçamento disponível: R$ 0,00.**
+
+Toda implementação desta etapa deve ser compatível com esse limite. Não habilite faturamento no Google Cloud ou Firebase.
+
+---
+
+# 3. PRIMEIRA AÇÃO: AUDITORIA DO PROJETO EXISTENTE
+
+Antes de escrever código, inspecione o projeto.
+
+Analise:
+
+- Estrutura de pastas.
+- Arquivos existentes.
+- `package.json`.
+- Dependências instaladas.
+- Configuração TypeScript.
+- Configuração Vite.
+- Configuração do Express.
+- Arquivo de inicialização do servidor.
+- Rotas existentes.
+- Middlewares existentes.
+- Variáveis de ambiente.
+- Configurações Firebase já presentes.
+- Scripts de desenvolvimento, build e testes.
+- Possíveis conflitos entre frontend e backend.
+
+Não presuma que a estrutura planejada existe. Confira os arquivos reais.
+
+Apresente um diagnóstico inicial contendo:
+
+1. O que já existe.
+2. O que está funcionando.
+3. O que precisa ser criado.
+4. O que precisa ser ajustado.
+5. Quais arquivos não devem ser modificados.
+6. Quais dependências já estão instaladas.
+7. Quais dependências serão necessárias.
+
+Depois dessa inspeção, execute a implementação da Etapa 4.1.
+
+Se encontrar um problema estrutural que impeça uma implementação segura, explique o problema antes de fazer uma alteração destrutiva.
+
+---
+
+# 4. OBJETIVO DA ETAPA 4.1
+
+Construir uma estrutura de backend modular, organizada e preparada para as próximas etapas.
+
+A arquitetura deve separar claramente:
+
+- Configurações.
+- Domínio.
+- Tipos e contratos.
+- Interfaces.
+- Serviços.
+- Implementações.
+- Repositórios.
+- Controllers.
+- Rotas.
+- Middlewares.
+- Validações.
+- Utilitários.
+- Testes.
+
+O backend deve ser preparado para que, futuramente, seja possível substituir implementações simuladas por implementações reais sem precisar reescrever as regras de negócio.
+
+Utilize princípios de:
+
+- Separação de responsabilidades.
+- Inversão de dependência.
+- Baixo acoplamento.
+- Alta coesão.
+- Tipagem forte.
+- Validação de entrada.
+- Tratamento centralizado de erros.
+- Testabilidade.
+- Segurança por padrão.
+
+Não implemente abstrações desnecessárias. A arquitetura deve ser organizada, mas não excessivamente complexa.
+
+---
+
+# 5. ESTRUTURA DE PASTAS
+
+Analise a estrutura existente e adapte-a sem duplicar arquivos ou criar duas arquiteturas paralelas.
+
+A estrutura desejada para o backend é semelhante a esta:
+
+```text
+server/
+├── src/
+│   ├── app.ts
+│   ├── server.ts
+│   │
+│   ├── config/
+│   │   ├── env.ts
+│   │   ├── app.config.ts
+│   │   └── security.config.ts
+│   │
+│   ├── domain/
+│   │   ├── entities/
+│   │   ├── enums/
+│   │   ├── errors/
+│   │   └── value-objects/
+│   │
+│   ├── contracts/
+│   │   ├── auth.contracts.ts
+│   │   ├── user.contracts.ts
+│   │   ├── dojo.contracts.ts
+│   │   ├── student.contracts.ts
+│   │   ├── class.contracts.ts
+│   │   ├── tuition.contracts.ts
+│   │   ├── attendance.contracts.ts
+│   │   ├── graduation.contracts.ts
+│   │   ├── competition.contracts.ts
+│   │   └── calendar.contracts.ts
+│   │
+│   ├── interfaces/
+│   │   ├── repositories/
+│   │   ├── services/
+│   │   └── security/
+│   │
+│   ├── infrastructure/
+│   │   ├── repositories/
+│   │   │   └── mocks/
+│   │   ├── services/
+│   │   │   └── mocks/
+│   │   └── security/
+│   │
+│   ├── services/
+│   │   ├── auth/
+│   │   ├── students/
+│   │   ├── users/
+│   │   ├── dojos/
+│   │   └── provisioning/
+│   │
+│   ├── controllers/
+│   ├── routes/
+│   ├── middlewares/
+│   ├── validators/
+│   ├── utils/
+│   └── tests/
+│
+└── README.md
+```
+
+A estrutura é uma referência arquitetural, não uma ordem para duplicar pastas ou mover arquivos indiscriminadamente.
+
+Se o projeto já utilizar uma estrutura equivalente, preserve-a e explique as diferenças.
+
+---
+
+# 6. MODELO MULTI-TENANT
+
+O Karate Club será um SaaS multi-tenant.
+
+Isso significa que vários dojos utilizarão o mesmo sistema, mas cada dojo terá seus próprios usuários e dados.
+
+O isolamento entre dojos é um requisito central.
+
+## 6.1. Identificação do tenant
+
+A entidade central será o `dojoId`.
+
+As operações administrativas deverão estar vinculadas ao dojo autenticado.
+
+Não confie em um `dojoId` enviado livremente pelo frontend para definir a autorização de uma operação.
+
+Nas futuras integrações reais, a identidade e o escopo do usuário deverão ser determinados por dados autenticados e validados pelo backend.
+
+## 6.2. Papéis
+
+Criar os tipos necessários para:
+
+- `superadmin`
+- `admin`
+- `sensei`
+- `student`
+
+Não invente permissões adicionais nesta etapa.
+
+A estrutura deve permitir a implementação futura de autorização por papel e por dojo.
+
+## 6.3. Regras fundamentais
+
+- Um administrador pertence a um dojo.
+- Um sensei pertence a um dojo.
+- Um aluno pertence a um dojo.
+- Um aluno não pode acessar dados de outro aluno.
+- Um dojo não pode acessar dados de outro dojo.
+- O aluno não pode assumir permissões administrativas.
+- O frontend não é fonte confiável de autorização.
+
+Não implementar a autorização real ainda. Preparar contratos e interfaces para isso.
+
+---
+
+# 7. CONTRATOS E TIPOS DO DOMÍNIO
+
+Criar os tipos TypeScript essenciais para representar as principais entidades.
+
+Não criar todos os campos possíveis de forma arbitrária. Utilize os campos previstos na arquitetura do Karate Club e mantenha os tipos coerentes entre si.
+
+## 7.1. User
+
+Representa a identidade de acesso ao sistema.
+
+Campos previstos:
+
+- uid
+- dojoId
+- role
+- name
+- isActive
+- createdAt
+- sessionVersion
+- studentId opcional
+- username opcional
+
+## 7.2. Dojo
+
+Representa uma academia.
+
+Campos previstos:
+
+- id
+- name
+- slug
+- headmasterName
+- city
+- state
+- country
+- isActive
+- createdAt
+
+## 7.3. Student
+
+Representa o perfil esportivo e administrativo do aluno.
+
+Deve contemplar:
+
+- Identificador.
+- Identificador do dojo.
+- Nome completo.
+- Data de nascimento.
+- Telefone.
+- Responsável, quando aplicável.
+- Turmas vinculadas.
+- Faixa atual.
+- Data de matrícula.
+- Situação.
+- Informações de mensalidade previstas na arquitetura.
+- Dados de peso, quando aplicáveis.
+- Referência ao usuário de autenticação.
+
+Não adicionar CPF, endereço ou upload de documentos, pois esses dados não fazem parte do escopo definido para o cadastro inicial.
+
+## 7.4. Class
+
+Representa uma turma.
+
+Deve contemplar:
+
+- Identificador.
+- Dojo.
+- Nome.
+- Dias de treinamento.
+- Horários.
+- Responsável opcional.
+- Faixa etária, quando definida.
+- Graduações permitidas, quando definidas.
+- Valor padrão da mensalidade.
+- Situação.
+
+## 7.5. Tuition
+
+Representa uma mensalidade.
+
+Deve contemplar:
+
+- Identificador.
+- Student ID.
+- Dojo ID.
+- Mês de referência.
+- Valor original em centavos.
+- Desconto em centavos.
+- Valor final em centavos.
+- Vencimento.
+- Situação do pagamento.
+- Data de pagamento, quando aplicável.
+- Registro de confirmação manual.
+
+Valores monetários devem ser representados em centavos inteiros. Não utilizar números de ponto flutuante para operações financeiras.
+
+O histórico de mensalidades deve preservar os valores registrados no momento da geração.
+
+## 7.6. Attendance
+
+Representa um registro de frequência.
+
+Deve contemplar:
+
+- Identificador.
+- Dojo.
+- Turma.
+- Aluno.
+- Data.
+- Situação de presença.
+- Responsável pelo registro.
+- Data de criação.
+
+## 7.7. Graduation
+
+Representa uma graduação.
+
+Deve contemplar:
+
+- Identificador.
+- Dojo.
+- Aluno.
+- Faixa.
+- Data.
+- Responsável pelo registro.
+- Observação opcional.
+
+## 7.8. Competition
+
+Representa uma competição.
+
+Deve contemplar:
+
+- Identificador.
+- Dojo.
+- Nome.
+- Organizador.
+- Local.
+- Data inicial.
+- Data final.
+- Descrição.
+- Categorias e modalidades.
+- Situação.
+
+Modalidades previstas:
+
+- Kata individual.
+- Kumite individual.
+- Kata em equipe.
+- Kumite em equipe.
+
+Um atleta poderá participar de várias modalidades.
+
+Os resultados de equipes deverão permitir identificar os atletas integrantes.
+
+## 7.9. CalendarEvent
+
+Representa um evento do calendário.
+
+Deve contemplar:
+
+- Identificador.
+- Dojo.
+- Título.
+- Categoria.
+- Início.
+- Fim.
+- Descrição.
+- Turmas relacionadas, quando aplicável.
+- Visibilidade para alunos.
+
+Os horários regulares das turmas deverão vir do cadastro de turmas. Não duplicar a agenda recorrente como eventos manuais.
+
+---
+
+# 8. INTERFACES E CONTRATOS DE SERVIÇO
+
+Criar interfaces independentes das implementações concretas.
+
+O objetivo é permitir que os serviços de domínio não dependam diretamente de Firebase, Firestore, Express ou bibliotecas específicas.
+
+Criar interfaces para os repositórios essenciais, incluindo:
+
+- UserRepository.
+- DojoRepository.
+- StudentRepository.
+- ClassRepository.
+- TuitionRepository.
+- AttendanceRepository.
+- GraduationRepository.
+- CompetitionRepository.
+- CalendarEventRepository.
+
+Criar contratos de serviços para:
+
+- Autenticação.
+- Validação de sessão.
+- Gerenciamento de usuários.
+- Gerenciamento de alunos.
+- Provisionamento de alunos.
+- Geração de senha temporária.
+- Hash e verificação de senha.
+- Validação de bootstrap.
+
+Cada interface deverá declarar claramente:
+
+- Responsabilidade.
+- Entradas.
+- Saídas.
+- Erros esperados.
+- Restrições de autorização.
+- Dependências.
+
+Não implementar serviços reais do Firebase.
+
+Não misturar regras de negócio com operações de persistência.
+
+---
+
+# 9. AUTENTICAÇÃO DOS ALUNOS — PREPARAÇÃO
+
+O sistema terá dois fluxos de autenticação.
+
+## 9.1. Administradores e senseis
+
+Utilizarão futuramente Firebase Authentication com autenticação nativa, por exemplo, e-mail e senha ou Google, conforme a configuração definida nas próximas etapas.
+
+## 9.2. Alunos
+
+Os alunos não precisarão ter e-mail próprio.
+
+O fluxo planejado será:
+
+1. O aluno informa o identificador do dojo.
+2. Informa seu usuário ou matrícula.
+3. Informa sua senha.
+4. O backend localiza a credencial dentro do dojo correspondente.
+5. O backend verifica o hash da senha.
+6. O backend verifica se o aluno está ativo.
+7. O backend verifica a consistência entre credencial, usuário, aluno e dojo.
+8. O backend emite um Firebase Custom Token.
+9. O frontend utiliza `signInWithCustomToken`.
+
+Nesta etapa, preparar somente os contratos e interfaces desse fluxo.
+
+**Não implementar o login real.**
+
+Não simular que a autenticação está funcionando.
+
+Não gerar tokens fictícios com aparência de tokens Firebase.
+
+---
+
+# 10. SEGURANÇA DE SENHAS
+
+Preparar uma interface de hashing e verificação de senhas.
+
+O algoritmo definido para o projeto é Argon2id.
+
+Parâmetros iniciais de referência:
+
+- Memória: 32 MiB.
+- Iterações: 3.
+- Paralelismo: 1.
+
+Esses parâmetros ainda deverão passar por benchmark no ambiente de hospedagem real.
+
+## 10.1. Requisitos
+
+- Não armazenar senha em texto puro.
+- Não registrar senha em logs.
+- Não retornar hash ao frontend.
+- Não expor credenciais em mensagens de erro.
+- Não implementar fallback silencioso para algoritmo mais fraco.
+- Não permitir que a interface administrativa consulte senhas atuais.
+- Preparar suporte à geração de senha temporária.
+- Preparar suporte à troca obrigatória da senha no primeiro acesso.
+
+## 10.2. Implementação nesta etapa
+
+Criar um serviço isolado de hashing Argon2id.
+
+Criar testes unitários para:
+
+- Gerar hash.
+- Verificar senha correta.
+- Rejeitar senha incorreta.
+- Verificar que hashes diferentes podem ser gerados para a mesma senha devido ao salt.
+- Tratar entradas inválidas.
+- Tratar falhas da biblioteca.
+
+Não afirmar que os parâmetros estão otimizados sem benchmark.
+
+Se a biblioteca exigir recursos ou configuração incompatíveis com o ambiente atual, informe o problema. Não substitua o algoritmo sem autorização.
+
+---
+
+# 11. GERAÇÃO DE SENHA TEMPORÁRIA
+
+Criar um utilitário seguro de geração de senha temporária.
+
+Requisitos:
+
+- Utilizar fonte criptograficamente segura de aleatoriedade.
+- Não utilizar `Math.random()`.
+- Não usar datas, nomes ou identificadores como fonte de entropia.
+- Não armazenar a senha em logs.
+- Não armazenar a senha em texto puro.
+- Não utilizar algoritmos de geração enviesados.
+
+A interface deve permitir gerar uma senha temporária no formato definido pela arquitetura.
+
+A implementação deverá explicar:
+
+- Alfabeto utilizado.
+- Quantidade de caracteres.
+- Entropia estimada em bits.
+- Método de geração.
+- Como é evitado viés estatístico.
+
+Criar testes unitários para formato, comprimento, alfabeto e comportamento do gerador.
+
+Não implementar ainda o fluxo completo de entrega de senha ao administrador.
+
+---
+
+# 12. VALIDADOR DO SEGREDO DE BOOTSTRAP
+
+Preparar um componente isolado para validar futuramente o segredo de bootstrap do sistema.
+
+Requisitos:
+
+- O segredo deverá existir exclusivamente no ambiente do servidor.
+- Não poderá utilizar prefixo `VITE_`.
+- Não poderá ser enviado ao frontend.
+- Não poderá ser escrito em arquivos públicos.
+- Não poderá ser registrado em logs.
+- A comparação deverá utilizar `crypto.timingSafeEqual`.
+- Os buffers comparados deverão possuir o mesmo comprimento.
+- A validação deverá rejeitar entradas ausentes, inválidas ou com tamanho inesperado.
+
+A arquitetura prevê um segredo de 32 bytes, representado por 64 caracteres hexadecimais.
+
+Nesta etapa, implementar somente o validador isolado e seus testes.
+
+**Não criar o endpoint real de bootstrap.**
+
+**Não criar o primeiro administrador.**
+
+**Não gravar o bloqueio de bootstrap no Firestore.**
+
+---
+
+# 13. MOCKS E IMPLEMENTAÇÕES SIMULADAS
+
+Criar implementações simuladas para permitir testar os serviços sem Firebase.
+
+Os mocks devem respeitar exatamente os contratos das interfaces.
+
+Requisitos:
+
+- Não acessar Firestore.
+- Não acessar Firebase Authentication.
+- Não utilizar credenciais reais.
+- Não persistir dados reais.
+- Não depender de uma conta externa.
+- Não misturar mocks com implementações de produção.
+- Ser fáceis de substituir por implementações reais.
+
+Se utilizar memória local para os mocks, deixar explícito que os dados são voláteis e desaparecem quando o processo é reiniciado.
+
+Os mocks não devem ser apresentados como banco de dados real.
+
+Criar pelo menos exemplos de:
+
+- Um dojo.
+- Um administrador.
+- Um sensei.
+- Dois alunos.
+- Uma turma.
+
+Os dados devem ser exclusivamente de teste, com identificação clara de que são fictícios.
+
+Utilizar os mocks para verificar se as regras de negócio respeitam o escopo do dojo.
+
+**Teste obrigatório de isolamento:**
+
+Criar dois dojos fictícios, cada um com seus próprios alunos.
+
+Demonstrar que uma operação vinculada ao Dojo A não retorna nem altera os dados do Dojo B.
+
+Esse teste deve ocorrer na camada de serviço, não depender de uma regra visual do frontend.
+
+---
+
+# 14. CAMADA HTTP: EXPRESS
+
+Preparar a aplicação Express de forma modular.
+
+Separar:
+
+- Criação da aplicação.
+- Inicialização do servidor.
+- Registro das rotas.
+- Middlewares.
+- Tratamento de erros.
+
+Criar ou preservar um endpoint de saúde:
+
+`GET /api/health`
+
+A resposta deverá indicar apenas informações operacionais não sensíveis, por exemplo:
+
+- Status.
+- Nome do serviço.
+- Versão da aplicação, se disponível.
+
+Não retornar:
+
+- Variáveis de ambiente.
+- Segredos.
+- Chaves.
+- Tokens.
+- Dados de usuários.
+- Informações internas sensíveis.
+
+Criar um middleware centralizado de tratamento de erros.
+
+Criar respostas HTTP consistentes.
+
+Preparar validação de entradas com uma biblioteca já existente ou uma dependência pequena e apropriada, se necessário.
+
+Não adicionar dezenas de endpoints sem implementação real.
+
+Não criar endpoints que respondam sucesso para operações que ainda não existem.
+
+Se uma rota ainda não estiver implementada, retornar uma resposta coerente de recurso não disponível, sem fingir que a operação foi executada.
+
+---
+
+# 15. MIDDLEWARES E CONTROLES PREPARATÓRIOS
+
+Preparar a estrutura para os seguintes middlewares:
+
+- Tratamento de erros.
+- Validação de requisições.
+- Identificação de requisição.
+- Autenticação futura.
+- Autorização futura.
+- Verificação futura de escopo do dojo.
+
+Não implementar autenticação simulada como se fosse autenticação confiável.
+
+Não aceitar `role`, `uid`, `studentId` ou `dojoId` enviados pelo cliente como prova de identidade.
+
+Os middlewares de autenticação e autorização podem permanecer como interfaces, contratos ou componentes ainda não conectados.
+
+Documentar claramente o que está implementado e o que está preparado para implementação futura.
+
+---
+
+# 16. TRATAMENTO DE ERROS
+
+Criar uma estrutura padronizada de erros de domínio e de aplicação.
+
+Prever categorias como:
+
+- ValidationError.
+- AuthenticationError.
+- AuthorizationError.
+- NotFoundError.
+- ConflictError.
+- RateLimitError.
+- InternalServerError.
+
+Os erros não devem expor detalhes internos ao cliente.
+
+As respostas externas deverão conter mensagens seguras.
+
+Os logs internos poderão conter informações técnicas necessárias à depuração, mas nunca:
+
+- Senhas.
+- Hashes de senha.
+- Tokens.
+- Segredos.
+- Chaves privadas.
+- Credenciais de serviço.
+
+Não registrar objetos completos de autenticação.
+
+---
+
+# 17. TESTES AUTOMATIZADOS
+
+Criar uma estrutura de testes unitários e executar os testes implementados.
+
+Cobertura mínima obrigatória:
+
+## 17.1. Tipos e contratos
+
+- Compilação dos tipos.
+- Compatibilidade entre entidades e contratos.
+- Campos obrigatórios.
+- Campos opcionais.
+- Tipos de valores monetários.
+
+## 17.2. Segurança
+
+- Comparação segura do segredo de bootstrap.
+- Rejeição de segredo inválido.
+- Rejeição de segredo ausente.
+- Geração de senha temporária.
+- Hash Argon2id.
+- Verificação de senha.
+- Rejeição de senha incorreta.
+
+## 17.3. Multi-tenancy
+
+- Isolamento de dois dojos.
+- Aluno do Dojo A não acessa aluno do Dojo B.
+- Operação administrativa do Dojo A não retorna dados do Dojo B.
+- Identificadores de dojo inconsistentes devem resultar em rejeição na camada de serviço.
+
+## 17.4. HTTP
+
+- `GET /api/health` responde corretamente.
+- Erro de validação retorna status adequado.
+- Erro interno não expõe stack trace ao cliente.
+- Rotas não implementadas não simulam sucesso.
+
+Não inventar resultados.
+
+Apresentar os comandos utilizados e a saída real dos testes.
+
+---
+
+# 18. CONFIGURAÇÃO DE AMBIENTE
+
+Preparar um arquivo `.env.example` com apenas nomes de variáveis e valores ilustrativos não sensíveis.
+
+Não colocar valores reais.
+
+Não copiar segredos existentes.
+
+Separar claramente variáveis do frontend e do servidor.
+
+Variáveis futuras poderão incluir:
+
+- `NODE_ENV`
+- `PORT`
+- `FIREBASE_PROJECT_ID`
+- `SERVER_BOOTSTRAP_SECRET`
+- `PROVISIONING_ENCRYPTION_KEY`
+
+Não exigir que essas variáveis sejam preenchidas para executar os testes unitários que não dependem delas.
+
+Criar validação de ambiente que identifique variáveis obrigatórias somente quando o recurso correspondente for realmente inicializado.
+
+Não utilizar variáveis privadas no frontend.
+
+Não expor `SERVER_BOOTSTRAP_SECRET` ou `PROVISIONING_ENCRYPTION_KEY` em variáveis `VITE_`.
+
+---
+
+# 19. DOCUMENTAÇÃO TÉCNICA
+
+Criar ou atualizar o README do backend.
+
+Documentar:
+
+1. Objetivo do backend.
+2. Arquitetura adotada.
+3. Estrutura de pastas.
+4. Responsabilidade de cada camada.
+5. Como executar localmente.
+6. Como executar testes.
+7. Como executar build.
+8. Como funcionam os mocks.
+9. Como adicionar um novo repositório.
+10. Como substituir um mock por uma implementação real.
+11. Como adicionar um serviço.
+12. Como adicionar uma rota.
+13. Como os limites multi-tenant serão aplicados.
+14. Quais integrações ainda não existem.
+15. Quais medidas de segurança ainda dependem das próximas etapas.
+
+Não documentar como concluído aquilo que apenas foi planejado.
+
+---
+
+# 20. CRITÉRIOS DE QUALIDADE
+
+A implementação deverá respeitar:
+
+- TypeScript sem erros.
+- Build sem erros.
+- Imports organizados.
+- Tipos explícitos.
+- Ausência de `any` desnecessário.
+- Ausência de código duplicado.
+- Separação entre domínio e infraestrutura.
+- Ausência de segredos no código.
+- Ausência de dependência desnecessária.
+- Tratamento consistente de erros.
+- Testes executáveis.
+- Mocks isolados.
+- Nenhuma operação real no Firebase.
+
+Não utilize `as any` para contornar problemas de tipagem.
+
+Não silencie erros com `@ts-ignore` sem justificativa técnica documentada.
+
+Não desabilite regras do TypeScript ou do linter apenas para fazer o build passar.
+
+Não crie testes que apenas repetem o comportamento esperado sem verificar a lógica.
+
+---
+
+# 21. O QUE NÃO FAZER NESTA ETAPA
+
+É expressamente proibido:
+
+- Implementar login real de alunos.
+- Implementar login real de administradores.
+- Criar Custom Tokens reais.
+- Integrar Firebase Admin SDK.
+- Criar usuários no Firebase Authentication.
+- Criar coleções no Firestore.
+- Executar leituras ou gravações reais.
+- Publicar regras de segurança.
+- Implementar cadastro real de alunos.
+- Implementar criação real de dojos.
+- Implementar recuperação real de senha.
+- Implementar emissão real de mensalidades.
+- Implementar integração de pagamentos.
+- Implementar envio de e-mails.
+- Implementar notificações.
+- Implementar armazenamento de imagens.
+- Implementar deploy.
+- Ativar billing.
+- Criar infraestrutura paga.
+- Alterar o design das telas já construídas.
+- Reconstruir o frontend.
+
+Esses itens pertencem a etapas posteriores.
+
+---
+
+# 22. PROCESSO DE EXECUÇÃO
+
+Execute na seguinte ordem:
+
+**ETAPA A — Auditoria**
+Inspecionar o projeto e registrar o estado atual.
+
+**ETAPA B — Planejamento técnico**
+Apresentar a estrutura proposta e as dependências necessárias.
+
+**ETAPA C — Configuração**
+Organizar a inicialização do backend, ambiente e scripts.
+
+**ETAPA D — Domínio e contratos**
+Criar entidades, enums, tipos e interfaces.
+
+**ETAPA E — Infraestrutura simulada**
+Criar mocks e implementações simuladas.
+
+**ETAPA F — Serviços**
+Criar os serviços isolados e preparar os componentes de segurança.
+
+**ETAPA G — Camada HTTP**
+Organizar Express, rotas, middlewares e tratamento de erros.
+
+**ETAPA H — Testes**
+Implementar e executar os testes automatizados.
+
+**ETAPA I — Documentação**
+Atualizar README e registrar decisões técnicas.
+
+**ETAPA J — Auditoria final**
+Verificar se o escopo foi respeitado.
+
+Não pule etapas.
+
+Se houver uma dependência entre duas etapas, respeite a ordem lógica e documente.
+
+---
+
+# 23. RELATÓRIO FINAL OBRIGATÓRIO
+
+Ao terminar, entregar um relatório técnico completo contendo:
+
+## A. Resumo executivo
+- O que foi construído.
+- Qual era o estado inicial.
+- Qual é o estado final.
+
+## B. Arquivos
+Tabela contendo:
+- Arquivo.
+- Ação realizada.
+- Responsabilidade.
+- Motivo da alteração.
+
+## C. Arquitetura
+Explicar:
+- Camadas.
+- Fluxo de dependências.
+- Interfaces.
+- Serviços.
+- Mocks.
+- Controllers.
+- Rotas.
+
+## D. Segurança
+Informar:
+- O que foi implementado.
+- O que foi apenas preparado.
+- O que ainda depende de integração real.
+- Como o isolamento multi-tenant foi testado.
+
+## E. Testes
+Apresentar:
+- Comandos executados.
+- Quantidade de testes.
+- Testes aprovados.
+- Testes reprovados.
+- Testes não executados.
+- Resultado do build.
+- Resultado do TypeScript.
+- Resultado do lint, se disponível.
+
+## F. Dependências
+Informar:
+- Dependências adicionadas.
+- Dependências removidas.
+- Motivo de cada alteração.
+- Impacto no projeto.
+
+## G. Integrações pendentes
+Listar tudo que ainda não está conectado ao Firebase ou a serviços reais.
+
+## H. Problemas encontrados
+Informar qualquer limitação, incompatibilidade, erro ou decisão que precise de aprovação.
+
+## I. Confirmação de escopo
+Responder individualmente:
+
+1. Foram criados usuários reais no Firebase?
+2. Foram criados documentos no Firestore?
+3. Foram alteradas Security Rules?
+4. Foi implementado login real?
+5. Foram gerados Custom Tokens reais?
+6. Foram criadas credenciais?
+7. Foi realizado deploy?
+8. Foi ativado algum serviço pago?
+9. O frontend existente foi preservado?
+10. Os testes foram executados de verdade?
+
+Todas as respostas devem ser verdadeiras e verificáveis.
+
+---
+
+# 24. CONDIÇÃO DE ENCERRAMENTO
+
+A Etapa 4.1 somente poderá ser considerada concluída se:
+
+- A estrutura estiver organizada.
+- Os contratos estiverem definidos.
+- As interfaces estiverem implementadas.
+- Os mocks estiverem isolados.
+- Os serviços previstos estiverem preparados.
+- O gerador de senha estiver testado.
+- O validador de bootstrap estiver testado.
+- O hashing Argon2id estiver testado.
+- O isolamento multi-tenant estiver testado na camada de serviço.
+- O Express estiver organizado.
+- O endpoint de saúde estiver funcionando.
+- Os testes estiverem executando.
+- O build estiver funcionando.
+- A documentação estiver atualizada.
+- Nenhuma operação real no Firebase tiver ocorrido.
+
+**Não avance automaticamente para a Etapa 4.2.**
+
+Ao finalizar, aguarde minha revisão e autorização.
+
+---
+
+# 25. INSTRUÇÃO FINAL
+
+Trabalhe como um engenheiro responsável por um SaaS que futuramente armazenará informações pessoais, financeiras e esportivas de alunos de diferentes academias.
+
+Priorize segurança, previsibilidade, organização e manutenção.
+
+Não tente impressionar criando funcionalidades extras.
+
+Não confunda quantidade de arquivos com qualidade arquitetural.
+
+Não considere uma funcionalidade pronta apenas porque existe uma interface ou um mock.
+
+Não esconda problemas.
+
+Não invente testes aprovados.
+
+Não altere o escopo por conta própria.
+
+**Sua prioridade é construir uma fundação técnica sólida para o Karate Club, respeitando integralmente a arquitetura aprovada e o orçamento de R$ 0,00.**
+
+Comece pela auditoria do projeto existente e, em seguida, execute a Etapa 4.1 dentro dos limites estabelecidos.

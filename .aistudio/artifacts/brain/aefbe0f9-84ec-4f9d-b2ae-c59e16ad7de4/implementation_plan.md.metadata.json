@@ -1,0 +1,6 @@
+{
+  "summary":  "Documento consolidado de Arquitetura e Engenharia de Autenticação e Segurança Multi-Tenant do Karate Club (Revisão Final da Fase 3). Aborda detalhadamente os 10 tópicos solicitados: criação de contas recuperável e idempotente com compensação/two-phase commit; bloqueio estrito de alunos com pendência de troca de senha no backend e no Firestore; estratégia de revogação de sessões e invalidação de access tokens de até 1h; mitigação de força bruta multinível (IP, conta/dojo, atraso progressivo, Firestore tokens); identificadores imutáveis e conformidade com limites de 128 chars do Firebase Auth; senhas temporárias de visualização única; fonte oficial de dados e adoção padrão do Argon2id sem salt redundante; regras completas do Firestore auditadas; viabilidade estrita no plano Spark gratuito com zero custo; e matriz de endpoints protegidos.",
+  "updatedAt":  "2026-11-08T04:44:48.776315743Z",
+  "requestFeedback":  true,
+  "userFacing":  true
+}

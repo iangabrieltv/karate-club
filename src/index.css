@@ -1,0 +1,22 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --color-karate-red: #B50000;
+  --color-karate-red-hover: #990000;
+  --color-karate-dark: #0A0A0A;
+  --color-karate-surface: #121212;
+  --color-karate-border: #222222;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #000000;
+  color: #FFFFFF;
+}
